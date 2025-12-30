@@ -1,0 +1,7 @@
+{
+  "name": "Lumière Fashion Studio AI",
+  "description": "A high-end AI-powered fashion lookbook generator that transforms product images into professional commercial-grade studio photography.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
