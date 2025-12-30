@@ -2,6 +2,10 @@
 import { GoogleGenAI } from "@google/genai";
 import { GenerationConfig, GeneratedImage } from "../types";
 
+/**
+ * Optic-Prime Engine v3
+ * Tối ưu hóa cho độ sắc nét vượt tiêu chuẩn Studio (High-Frequency Detail Recovery)
+ */
 export const generateLookbookImages = async (
   sourceBase64: string,
   config: GenerationConfig
@@ -9,10 +13,9 @@ export const generateLookbookImages = async (
   const apiKey = process.env.API_KEY;
   
   if (!apiKey) {
-    throw new Error("API Key is missing. Please select a valid API key to proceed.");
+    throw new Error("API Key required. Please authenticate via Studio Key.");
   }
 
-  // Create a new instance right before the call to ensure the latest key is used
   const ai = new GoogleGenAI({ apiKey });
   const modelName = config.engine;
 
@@ -20,76 +23,70 @@ export const generateLookbookImages = async (
   const mimeType = sourceBase64.match(/^data:(image\/\w+);base64,/)?.[1] || 'image/png';
 
   const getModelPrompt = () => {
-    const genderTerm = config.gender === 'female' ? 'woman' : (config.gender === 'male' ? 'man' : 'non-binary model');
+    const genderTerm = config.gender === 'female' ? 'woman' : (config.gender === 'male' ? 'man' : 'model');
     
     switch (config.modelType) {
-      case 'none': return 'a clean architectural flat lay display';
-      case 'mannequin': return 'a premium matte-white invisible ghost mannequin';
-      case 'asian': return `a professional East Asian ${genderTerm} fashion model with flawless skin and elegant poise`;
-      case 'western': return `a professional Western ${genderTerm} fashion model with high-fashion features`;
-      case 'african': return `a professional African ${genderTerm} fashion model with stunning features and professional gaze`;
-      case 'latino': return `a professional Latino ${genderTerm} fashion model with warm, editorial presence`;
-      default: return `a top-tier professional ${genderTerm} fashion model`;
+      case 'none': return 'architectural high-end flat lay, zero human subject';
+      case 'mannequin': return 'ghost mannequin with professional structural padding';
+      case 'asian': return `elite East Asian fashion ${genderTerm} model, radiant complexion, hyper-realistic skin pores`;
+      case 'western': return `top-tier Western fashion ${genderTerm} model, sharp facial features, editorial gaze`;
+      case 'african': return `premium African fashion ${genderTerm} model, flawless skin texture, powerful presence`;
+      case 'latino': return `professional Latino fashion ${genderTerm} model, warm skin tones, vibrant energy`;
+      default: return `world-class professional ${genderTerm} fashion model`;
     }
   };
 
   const getFramingPrompt = () => {
-    if (config.shotScale === 'full-body') {
-      return "FRAME: FULL BODY COMPOSITION. Head-to-toe visibility mandatory. Include model's footwear and the floor surface. Maintain model's entire silhouette within the frame.";
-    } else if (config.shotScale === 'close-up') {
-      return "FRAME: CLOSE-UP DETAIL. Focus strictly on upper body and garment textures. High-frequency detail focus.";
+    switch(config.shotScale) {
+      case 'full-body': 
+        return "SHOT: FULL-BODY MASTER. Head to toe. Headroom: 10%, Footroom: 5%. Include high-end footwear. Absolute vertical alignment.";
+      case 'close-up': 
+        return "SHOT: MACRO DETAIL. Focus on collar, buttons, and fabric weave. 1:1 scale texture reproduction.";
+      default: 
+        return "SHOT: STANDARD MEDIUM CROP. Waist-up to full-body transition.";
     }
-    return "FRAME: STANDARD FASHION CROP. Mid-shot to full-shot flexibility.";
   };
 
   const perspectives = [
-    "EYE-LEVEL HERO: Symmetrical, centered, zero-distortion lens compression.",
-    "ANGULAR VOLUME: 45-degree turn showing structural depth and 3D garment wrap.",
-    "PROFILE SILHOUETTE: Focusing on side-seam alignment and silhouette sharpness.",
-    "KINETIC ACTION: Natural movement showing fabric fluid dynamics and realistic folds.",
-    "LOW-ANGLE EDITORIAL: Powerful low-perspective emphasizing garment scale and dominance.",
-    "HIGH-ANGLE ARCHITECTURAL: Top-down view highlighting collar construction and shoulder drape.",
-    "MACRO FIDELITY: 1:1 extreme focus on fabric grain, thread density, and stitching perfection.",
-    "REVERSE 3/4 TURN: Capturing back construction with realistic light-wrap on edges."
+    "ANGLE: 0-degree eye-level, focal length 85mm, zero perspective distortion.",
+    "ANGLE: 45-degree isometric turn, emphasizing garment volume and 3D depth.",
+    "ANGLE: Sharp side profile, highlighting silhouette and drape physics.",
+    "ANGLE: Dynamic walking stride, capturing natural movement and fabric drag.",
+    "ANGLE: Low-angle (worm's eye) hero shot, emphasizing authority and scale.",
+    "ANGLE: High-angle architectural, focusing on shoulder construction.",
+    "ANGLE: Reverse 3/4 turn, capturing back detail and light wrap.",
+    "ANGLE: Detail crop, focusing on the most intricate part of the garment."
   ];
 
   const generationPromises = Array.from({ length: config.quantity }).map(async (_, idx) => {
     const perspectivePrompt = perspectives[idx % perspectives.length];
     
     const prompt = `
-      [OPTIC-PRIME RENDERING ENGINE INITIALIZED]
-      
-      CORE MISSION: Create a commercial asset that EXCEEDS physical studio photography in sharpness and realism.
-      
+      [SYSTEM: OPTIC-PRIME PRODUCTION MODE]
+      GOAL: Render a commercial-grade fashion asset with pixel density exceeding 100MP physical studio capture.
+
+      TECHNICAL PARAMETERS:
       ${getFramingPrompt()}
-      PERSPECTIVE: ${perspectivePrompt}
+      ${perspectivePrompt}
 
-      PIXEL-LEVEL PHYSICS:
-      - SENSOR EMULATION: Simulate 100MP CMOS Medium Format output. Zero noise, zero artifacts.
-      - TEXTURAL DENSITY: Render fabric fibers at sub-pixel accuracy. If cotton, show the subtle fuzz; if leather, show the organic pore structure; if silk, show the high-specular micro-sheen.
-      - PATH-TRACED LIGHTING: Implement physically-based rendering (PBR) for light interaction. Ensure subsurface scattering on skin and complex ambient occlusion in every fabric fold.
-      - OPTICAL PRECISION: Zero chromatic aberration. Use high-frequency micro-contrast to define edges against the background.
+      IMAGE FIDELITY SPECIFICATIONS:
+      - RAW RECONSTRUCTION: No AI hallucinations. Every stitch, texture, and color from the reference must be preserved.
+      - LIGHTING: 3-point professional studio setup (Key, Fill, Back). Use path-traced shadows and realistic light fall-off.
+      - OPTICS: Zero chromatic aberration. Emulate Phase One XF medium format camera sharpness.
+      - TEXTURE: Hyper-realistic rendering of ${config.fabricDetail === 'high-detail' ? 'micro-fibers, thread count, and material weave' : 'natural fabric surfaces'}.
+      - SKIN RENDERING: Realistic sub-surface scattering for skin. Do not airbrush; maintain natural pores and micro-textures.
 
-      STUDIO ENVIRONMENT:
-      - BACKGROUND: ${config.styles.join(", ")} context with neutral, color-accurate calibration.
-      - LIGHTING: ${config.lighting.replace('-', ' ')} with soft-box diffusion and accurate color temperature (5600K).
-      - FOCUS: Razor-sharp focal plane on the product. Use f/11 for deep depth-of-field ensuring the whole garment is crisp.
-
-      IDENTITY PRESERVATION:
-      - SUBJECT: ${getModelPrompt()}.
-      - PRODUCT INTEGRITY: Maintain 100% fidelity to the source image's colors, patterns, and hardware (zippers, buttons). NO halluncinations.
+      ENVIRONMENT:
+      - CONTEXT: ${config.styles.join(", ")} professional setting.
+      - BOKEH: f/11 aperture for edge-to-edge sharpness across the product.
       
-      FINAL OUTPUT: HDR (High Dynamic Range) master with deep tonal richness and absolute clarity.
+      FINAL POLISH: HDR-ready, color-calibrated (sRGB), maximum micro-contrast.
     `;
 
     try {
       const imageConfig: any = { aspectRatio: config.aspectRatio };
-      if (modelName === 'gemini-3-pro-image-preview') {
-        imageConfig.imageSize = "4K";
-      }
+      if (modelName === 'gemini-3-pro-image-preview') imageConfig.imageSize = "4K";
 
-      // Re-initialize for each part of the batch if needed, but here we can reuse the outer instance 
-      // as long as it's fresh for the call.
       const response = await ai.models.generateContent({
         model: modelName,
         contents: {
@@ -100,7 +97,6 @@ export const generateLookbookImages = async (
         },
         config: { 
           imageConfig,
-          // Only use thinkingConfig for pro models as per guidelines
           thinkingConfig: modelName.includes('pro') ? { thinkingBudget: 4000 } : undefined 
         }
       });
@@ -115,10 +111,10 @@ export const generateLookbookImages = async (
         }
       }
 
-      if (!imageUrl) throw new Error("API returned no image data.");
+      if (!imageUrl) throw new Error("Null Frame Output.");
 
       return {
-        id: Math.random().toString(36).substring(7),
+        id: Math.random().toString(36).substring(7).toUpperCase(),
         url: imageUrl,
         config: { ...config },
         status: 'completed',
@@ -126,7 +122,6 @@ export const generateLookbookImages = async (
       } as GeneratedImage;
 
     } catch (e: any) {
-      // Re-throw for handling at the App level
       throw e;
     }
   });

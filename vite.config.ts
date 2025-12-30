@@ -5,25 +5,9 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
-      root: '.',                    // ⭐ Root directory
-      publicDir: 'public',          // ⭐ Public assets folder
       server: {
         port: 3000,
         host: '0.0.0.0',
-      },
-      build: {
-        outDir: 'dist',
-        emptyOutDir: true,
-        sourcemap: false,
-        minify: 'esbuild',
-        rollupOptions: {
-          output: {
-            manualChunks: {
-              'react-vendor': ['react', 'react-dom'],
-              'gemini-vendor': ['@google/genai']
-            }
-          }
-        }
       },
       plugins: [react()],
       define: {
@@ -32,7 +16,7 @@ export default defineConfig(({ mode }) => {
       },
       resolve: {
         alias: {
-          '@': path.resolve(__dirname, './src'),
+          '@': path.resolve(__dirname, '.'),
         }
       }
     };
